@@ -20,7 +20,7 @@ export const copy = {
   ru: {
     language: 'Հայ',
     invitation: 'ПРИГЛАШЕНИЕ НА СВАДЬБУ',
-    tapToOpen: 'нажмите на печать, чтобы открыть',
+    tapToOpen: 'Мы ждём Вас на нашей свадьбе',
     musicOn: 'Выключить музыку',
     musicOff: 'Включить музыку',
     heroEyebrow: 'МЫ ЖЕНИМСЯ',
@@ -71,7 +71,7 @@ export const copy = {
   hy: {
     language: 'RU',
     invitation: 'ՀԱՐՍԱՆՅԱՑ ՀՐԱՎԵՐ',
-    tapToOpen: 'սեղմեք կնիքի վրա՝ բացելու համար',
+    tapToOpen: 'Սպասում ենք Ձեզ մեր հարսանիքին',
     musicOn: 'Անջատել երաժշտությունը',
     musicOff: 'Միացնել երաժշտությունը',
     heroEyebrow: 'ՄԵՆՔ ԱՄՈՒՍՆԱՆՈՒՄ ԵՆՔ',

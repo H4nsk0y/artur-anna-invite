@@ -50,7 +50,6 @@ function EnvelopeGate({
   onOpen: () => void
 }) {
   const t = copy[language]
-  const names = event.partners[language]
 
   return (
     <motion.div
@@ -61,11 +60,6 @@ function EnvelopeGate({
       <div className="gate__grain" />
       <Botanical side="left" />
       <Botanical side="right" />
-
-      <div className="gate__heading">
-        <span>{t.invitation}</span>
-        <h1><i>{names.one}</i><b>&</b><i>{names.two}</i></h1>
-      </div>
 
       <div className="envelope-scene" aria-label={t.tapToOpen}>
         <div className="envelope">
