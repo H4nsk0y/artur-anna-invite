@@ -14,6 +14,14 @@
   --serif: 'Cormorant Garamond', 'Noto Serif Armenian', Georgia, serif;
 }
 
+@font-face {
+  font-family: 'ArTar Tumanian';
+  src: url('./assets/fonts/ArTar_TumanianDzeragir_U.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -64,6 +72,12 @@ input:focus-visible {
 
 .invitation--hy {
   font-family: 'Noto Serif Armenian', 'Manrope', serif;
+  --serif: 'ArTar Tumanian', 'Noto Serif Armenian', Georgia, serif;
+}
+
+.gate--hy {
+  font-family: 'Noto Serif Armenian', 'Manrope', serif;
+  --serif: 'ArTar Tumanian', 'Noto Serif Armenian', Georgia, serif;
 }
 
 .paper-section,
@@ -299,6 +313,7 @@ input:focus-visible {
 .envelope-scene {
   position: relative;
   z-index: 4;
+  grid-row: 2;
   width: min(94vw, 490px);
   height: min(62vw, 315px);
   min-height: 205px;
@@ -473,6 +488,7 @@ input:focus-visible {
 .gate__hint {
   position: relative;
   z-index: 3;
+  grid-row: 3;
   align-self: start;
   width: min(84%, 370px);
   padding-top: 25px;
@@ -586,13 +602,6 @@ input:focus-visible {
   text-align: center;
 }
 
-.hero__content > p {
-  margin: 0 0 18px;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: .36em;
-}
-
 .hero__content h1 {
   margin: 0;
   font: italic 400 clamp(54px, 17vw, 94px)/.67 var(--serif);
@@ -629,29 +638,39 @@ input:focus-visible {
   letter-spacing: .24em;
 }
 
-.hero__scroll {
+.hero__down {
+  position: relative;
+  width: 26px;
+  height: 18px;
+  margin: 24px auto 0;
+  display: block;
+  opacity: .72;
+  animation: hero-arrow-float 1.9s ease-in-out infinite;
+}
+
+.hero__down::after {
+  content: '';
   position: absolute;
-  z-index: 2;
-  right: 15px;
-  bottom: 30px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  transform: rotate(90deg);
-  transform-origin: right bottom;
-  opacity: .58;
+  left: 50%;
+  top: 1px;
+  width: 13px;
+  height: 13px;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  background: transparent;
+  transform: translateX(-50%) rotate(45deg);
 }
 
-.hero__scroll i {
-  width: 32px;
-  height: 1px;
-  background: #fff;
-}
+@keyframes hero-arrow-float {
+  0%, 100% {
+    opacity: .56;
+    transform: translateY(0);
+  }
 
-.hero__scroll span {
-  font-size: 7px;
-  letter-spacing: .2em;
-  text-transform: uppercase;
+  50% {
+    opacity: .9;
+    transform: translateY(9px);
+  }
 }
 
 .hero__tear {
@@ -735,12 +754,51 @@ input:focus-visible {
   font: 300 14px/1.95 'Manrope', sans-serif;
 }
 
-.signature {
-  margin-top: 36px;
-  font: italic 400 29px/1 var(--serif);
+.intro-photo {
+  position: relative;
+  max-width: 315px;
+  margin: 42px auto 0;
+  padding: 9px;
+  overflow: hidden;
+  border-radius: 168px 168px 12px 12px;
+  background:
+    linear-gradient(rgb(255 255 255 / 58%), rgb(255 255 255 / 24%)),
+    #e6dccf;
+  box-shadow: 0 28px 60px rgb(80 67 53 / 13%);
 }
 
-.signature i,
+.intro-photo::before {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  z-index: 1;
+  border: 1px solid rgb(255 255 255 / 50%);
+  border-radius: 150px 150px 8px 8px;
+  pointer-events: none;
+}
+
+.intro-photo::after {
+  content: '';
+  position: absolute;
+  left: 25px;
+  right: 25px;
+  bottom: 13px;
+  z-index: 1;
+  height: 44%;
+  border-radius: 0 0 10px 10px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(24 22 19 / 24%), transparent);
+}
+
+.intro-photo img {
+  width: 100%;
+  aspect-ratio: 3 / 4.35;
+  display: block;
+  object-fit: cover;
+  object-position: 50% 50%;
+  border-radius: 154px 154px 8px 8px;
+}
+
 .countdown-section h2 i {
   color: var(--wine);
   font-weight: 400;
@@ -817,7 +875,7 @@ input:focus-visible {
 }
 
 .date-time {
-  margin: 43px auto 0;
+  margin: 62px auto 0;
   display: inline-flex;
   align-items: center;
   gap: 10px;

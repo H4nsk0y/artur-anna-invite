@@ -5,6 +5,8 @@ import { useSmoothWheelScroll } from './hooks/useSmoothWheelScroll'
 import { Attendance, submitRsvp } from './services/rsvp'
 
 const photoUrl = `${import.meta.env.BASE_URL}couple.jpg`
+const introPhotoUrl = `${import.meta.env.BASE_URL}intro-photo.jpg`
+const countdownPhotoUrl = `${import.meta.env.BASE_URL}countdown-photo.jpg`
 const musicUrl = `${import.meta.env.BASE_URL}music.mp3`
 const AdminPage = lazy(() => import('./admin/AdminPage'))
 
@@ -53,7 +55,7 @@ function EnvelopeGate({
 
   return (
     <motion.div
-      className={`gate ${opening ? 'gate--opening' : ''}`}
+      className={`gate gate--${language} ${opening ? 'gate--opening' : ''}`}
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.45 } }}
     >
@@ -242,11 +244,10 @@ function MainInvitation({ language }: { language: Language }) {
         <img src={photoUrl} alt="Пара танцует" />
         <div className="hero__shade" />
         <div className="hero__content">
-          <p>{t.heroEyebrow}</p>
           <h1><span>{names.one}</span><i>&</i><span>{names.two}</span></h1>
           <div><span /><b>{t.heroDate}</b><span /></div>
+          <span className="hero__down" aria-hidden="true" />
         </div>
-        <div className="hero__scroll"><i /><span>scroll</span></div>
         <svg className="hero__tear" viewBox="0 0 640 46" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 22 C42 13 73 29 116 20 C153 12 180 29 220 22 C261 14 294 30 337 20 C380 10 413 28 455 20 C496 12 527 27 566 19 C596 13 619 18 640 14 L640 46 L0 46 Z" />
         </svg>
@@ -257,7 +258,9 @@ function MainInvitation({ language }: { language: Language }) {
           <span className="ornament">✦</span>
           <h2>{t.dearTitle}</h2>
           <p>{t.dearText}</p>
-          <div className="signature">{names.one} <i>&</i> {names.two}</div>
+          <figure className="intro-photo">
+            <img src={introPhotoUrl} alt="" />
+          </figure>
         </Reveal>
       </AnimatedSection>
 
@@ -284,9 +287,23 @@ function MainInvitation({ language }: { language: Language }) {
         </Reveal>
       </AnimatedSection>
 
+      <AnimatedSection className="details dark-section">
+        <Reveal>
+          <SectionTitle number="02">{t.detailsLabel}</SectionTitle>
+          <div className="details__list">
+            {t.details.map((detail, index) => (
+              <article key={detail}>
+                <span>0{index + 1}</span>
+                <p>{detail}</p>
+              </article>
+            ))}
+          </div>
+        </Reveal>
+      </AnimatedSection>
+
       <AnimatedSection className="schedule stone-section">
         <Reveal>
-          <SectionTitle number="02">{t.scheduleLabel}</SectionTitle>
+          <SectionTitle number="03">{t.scheduleLabel}</SectionTitle>
           <motion.div
             className="timeline"
             initial={reduced ? false : 'hidden'}
@@ -312,9 +329,10 @@ function MainInvitation({ language }: { language: Language }) {
         </Reveal>
       </AnimatedSection>
 
+      {/*
       <AnimatedSection className="dress paper-section">
         <Reveal>
-          <SectionTitle number="03">{t.dressLabel}</SectionTitle>
+          <SectionTitle number="04">{t.dressLabel}</SectionTitle>
           <p className="section-copy">{t.dressText}</p>
           <div className="palette" aria-label="Цветовая палитра">
             {['#272724', '#6f5a4d', '#9e8270', '#c6b5a3', '#e5ddd1'].map((color, index) => (
@@ -323,31 +341,18 @@ function MainInvitation({ language }: { language: Language }) {
           </div>
         </Reveal>
       </AnimatedSection>
-
-      <AnimatedSection className="details dark-section">
-        <Reveal>
-          <SectionTitle number="04">{t.detailsLabel}</SectionTitle>
-          <div className="details__list">
-            {t.details.map((detail, index) => (
-              <article key={detail}>
-                <span>0{index + 1}</span>
-                <p>{detail}</p>
-              </article>
-            ))}
-          </div>
-        </Reveal>
-      </AnimatedSection>
+      */}
 
       <AnimatedSection className="rsvp-section paper-section">
         <Reveal>
-          <SectionTitle number="05">{t.rsvpLabel}</SectionTitle>
+          <SectionTitle number="04">{t.rsvpLabel}</SectionTitle>
           <p className="section-copy">{t.rsvpText}</p>
           <RsvpForm language={language} />
         </Reveal>
       </AnimatedSection>
 
       <AnimatedSection className="countdown-section">
-        <img src={photoUrl} alt="" />
+        <img src={countdownPhotoUrl} alt="" />
         <div className="countdown-section__shade" />
         <Reveal className="countdown-section__content">
           <span>{t.countdownLabel}</span>

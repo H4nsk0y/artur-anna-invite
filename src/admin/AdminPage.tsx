@@ -161,7 +161,7 @@ export default function AdminPage() {
           <div className="admin-auth__visual">
             <span className="admin-monogram">A <i>&</i> A</span>
             <p>Артур & Анна</p>
-            <small>24 · 08 · 2026</small>
+            <small>09.08.2026</small>
           </div>
           <div className="admin-auth__form">
             <span className="admin-kicker"><AdminIcon name="shield" /> Закрытый раздел</span>
