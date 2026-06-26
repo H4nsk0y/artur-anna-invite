@@ -1,5 +1,5 @@
 -- 1. Запустите этот файл в Supabase SQL Editor один раз.
--- 2. Затем запросите magic link на странице /#/admin.
+-- 2. Затем запросите magic link на странице /#/admin или ?admin=1.
 -- 3. После появления пользователя в Authentication > Users выполните команду в конце файла.
 
 create table if not exists public.admin_users (

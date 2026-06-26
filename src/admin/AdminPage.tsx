@@ -127,15 +127,12 @@ export default function AdminPage() {
     if (!email.trim()) return
     setAuthBusy(true)
     setAuthMessage('')
-    const redirectUrl = new URL(window.location.href)
-    redirectUrl.hash = ''
-    redirectUrl.searchParams.set('admin', '1')
-    const redirectTo = redirectUrl.toString()
+    const redirectTo = `${window.location.origin}${window.location.pathname}`
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
     })
-    setAuthMessage(error ? 'Не удалось отправить ссылку. Проверьте email и настройки Auth.' : 'Ссылка для входа отправлена. Проверьте почту.')
+    setAuthMessage(error ? `Не удалось отправить ссылку. Supabase: ${error.message}` : 'Ссылка для входа отправлена. Проверьте почту.')
     setAuthBusy(false)
   }
 

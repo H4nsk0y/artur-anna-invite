@@ -445,7 +445,15 @@ function InvitationApp() {
 }
 
 function isAdminRoute() {
-  return window.location.hash.startsWith('#/admin') || new URLSearchParams(window.location.search).has('admin')
+  const hash = window.location.hash
+  return (
+    hash.startsWith('#/admin') ||
+    hash.includes('access_token=') ||
+    hash.includes('refresh_token=') ||
+    hash.includes('error_code=') ||
+    hash.includes('type=') ||
+    new URLSearchParams(window.location.search).has('admin')
+  )
 }
 
 export default function App() {

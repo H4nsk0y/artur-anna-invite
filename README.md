@@ -40,7 +40,7 @@ npm.cmd run build
 
 ## Админ-панель
 
-Адрес локально: `http://localhost:4173/#/admin`. После публикации к адресу сайта нужно добавить `#/admin`.
+Адрес локально: `http://localhost:4173/#/admin`. После публикации админку можно открыть по `/#/admin`, а auth-callback Supabase возвращает пользователя на базовый адрес сайта.
 
 Панель использует вход по одноразовой ссылке Supabase Auth и позволяет:
 
@@ -52,7 +52,7 @@ npm.cmd run build
 Для включения защищённого чтения и удаления:
 
 1. Выполнить `admin-schema.sql` в Supabase SQL Editor.
-2. В Supabase открыть **Authentication → URL Configuration** и добавить адрес сайта с `#/admin` в Redirect URLs.
+2. В Supabase открыть **Authentication → URL Configuration** и добавить базовый адрес сайта в Redirect URLs.
 3. На странице админки запросить magic link на email владельца.
 4. После появления пользователя в **Authentication → Users** выполнить последнюю команду из `admin-schema.sql`, подставив email администратора.
 
