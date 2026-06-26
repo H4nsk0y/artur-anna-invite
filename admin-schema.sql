@@ -42,7 +42,12 @@ using (public.is_admin());
 grant select, delete on public.rsvps to authenticated;
 
 -- ПОСЛЕ ПЕРВОГО ЗАПРОСА MAGIC LINK:
--- замените email и выполните только эту команду:
+-- выполните эту команду для выдачи доступа двум админам:
 -- insert into public.admin_users (user_id)
--- select id from auth.users where lower(email) = lower('ovsepyanannette@gmail.com')
+-- select id
+-- from auth.users
+-- where lower(email) in (
+--   lower('ovsepyanannette@gmail.com'),
+--   lower('mirzoevhan77@mail.ru')
+-- )
 -- on conflict (user_id) do nothing;
