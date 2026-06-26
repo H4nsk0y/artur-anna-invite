@@ -1,4 +1,4 @@
-import { createClient, Session } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 import { AnimatePresence, motion } from 'motion/react'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import './admin.css'
@@ -11,13 +11,14 @@ type Rsvp = {
   created_at: string
 }
 
-type AdminState = 'loading' | 'login' | 'checking' | 'ready' | 'denied' | 'setup-error'
+type AdminState = 'loading' | 'login' | 'ready'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
 const supabaseKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY) as string
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-})
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+const allowedEmails = new Set(['ovsepyanannette@gmail.com', 'mirzoevhan77@mail.ru'])
+const adminEmailKey = 'wedding-admin-email'
 
 function AdminIcon({ name }: { name: 'guests' | 'yes' | 'no' | 'search' | 'refresh' | 'download' | 'trash' | 'logout' | 'mail' | 'shield' }) {
   const paths = {
@@ -43,10 +44,9 @@ function formatDate(value: string) {
 
 export default function AdminPage() {
   const [state, setState] = useState<AdminState>('loading')
-  const [session, setSession] = useState<Session | null>(null)
+  const [adminEmail, setAdminEmail] = useState('')
   const [email, setEmail] = useState('')
   const [authMessage, setAuthMessage] = useState('')
-  const [authBusy, setAuthBusy] = useState(false)
   const [rows, setRows] = useState<Rsvp[]>([])
   const [query, setQuery] = useState('')
   const [loadingRows, setLoadingRows] = useState(false)
@@ -74,41 +74,19 @@ export default function AdminPage() {
     setLoadingRows(false)
   }, [])
 
-  const checkAccess = useCallback(async (activeSession: Session) => {
-    setSession(activeSession)
-    setState('checking')
-    const { data, error } = await supabase.rpc('is_admin')
-
-    if (error) {
-      setState('setup-error')
-      return
-    }
-    if (!data) {
-      setState('denied')
-      return
-    }
-
-    setState('ready')
-    await loadRows()
-  }, [loadRows])
-
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void checkAccess(data.session)
-      else setState('login')
-    })
+    const savedEmail = localStorage.getItem(adminEmailKey)?.trim().toLowerCase() ?? ''
+    if (allowedEmails.has(savedEmail)) {
+      setAdminEmail(savedEmail)
+      setEmail(savedEmail)
+      setState('ready')
+      void loadRows()
+      return
+    }
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      window.setTimeout(() => {
-        if (nextSession) void checkAccess(nextSession)
-        else {
-          setSession(null)
-          setState('login')
-        }
-      }, 0)
-    })
-    return () => listener.subscription.unsubscribe()
-  }, [checkAccess])
+    localStorage.removeItem(adminEmailKey)
+    setState('login')
+  }, [loadRows])
 
   const filteredRows = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase('ru')
@@ -122,23 +100,26 @@ export default function AdminPage() {
     no: rows.filter((row) => row.attendance === 'no').length,
   }), [rows])
 
-  async function sendMagicLink(event: FormEvent) {
+  async function handleLogin(event: FormEvent) {
     event.preventDefault()
-    if (!email.trim()) return
-    setAuthBusy(true)
+    const normalizedEmail = email.trim().toLowerCase()
     setAuthMessage('')
-    const redirectTo = `${window.location.origin}${window.location.pathname}`
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
-    })
-    setAuthMessage(error ? `Не удалось отправить ссылку. Supabase: ${error.message}` : 'Ссылка для входа отправлена. Проверьте почту.')
-    setAuthBusy(false)
+    if (!allowedEmails.has(normalizedEmail)) {
+      setAuthMessage('Этот email не добавлен в список администраторов.')
+      return
+    }
+
+    localStorage.setItem(adminEmailKey, normalizedEmail)
+    setAdminEmail(normalizedEmail)
+    setState('ready')
+    await loadRows()
   }
 
-  async function signOut() {
-    await supabase.auth.signOut()
+  function signOut() {
+    localStorage.removeItem(adminEmailKey)
+    setAdminEmail('')
     setRows([])
+    setState('login')
   }
 
   async function confirmDelete() {
@@ -168,8 +149,8 @@ export default function AdminPage() {
     URL.revokeObjectURL(url)
   }
 
-  if (state === 'loading' || state === 'checking') {
-    return <div className="admin-loading"><span /><p>{state === 'checking' ? 'Проверяем доступ…' : 'Загружаем…'}</p></div>
+  if (state === 'loading') {
+    return <div className="admin-loading"><span /><p>Загружаем…</p></div>
   }
 
   if (state === 'login') {
@@ -185,13 +166,13 @@ export default function AdminPage() {
           <div className="admin-auth__form">
             <span className="admin-kicker"><AdminIcon name="shield" /> Закрытый раздел</span>
             <h1>Ответы гостей</h1>
-            <p>Введите email администратора. Мы отправим одноразовую ссылку для безопасного входа без пароля.</p>
-            <form onSubmit={sendMagicLink}>
+            <p>Введите email администратора. Если он есть в списке доступа, панель откроется сразу.</p>
+            <form onSubmit={handleLogin}>
               <label>
                 <span>Email</span>
                 <div><AdminIcon name="mail" /><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="owner@example.com" required /></div>
               </label>
-              <button type="submit" disabled={authBusy}>{authBusy ? 'Отправляем…' : 'Получить ссылку'}</button>
+              <button type="submit">Войти</button>
             </form>
             {authMessage && <motion.div className="admin-auth__message" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{authMessage}</motion.div>}
             <a href={`${window.location.pathname}#/`}>← Вернуться к приглашению</a>
@@ -201,25 +182,11 @@ export default function AdminPage() {
     )
   }
 
-  if (state === 'denied' || state === 'setup-error') {
-    return (
-      <main className="admin-auth">
-        <motion.section className="admin-access-card" initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }}>
-          <div className="admin-access-card__icon"><AdminIcon name="shield" /></div>
-          <span>{state === 'denied' ? 'Доступ ограничен' : 'Требуется настройка'}</span>
-          <h1>{state === 'denied' ? 'Этот аккаунт не является администратором' : 'Политики администратора ещё не установлены'}</h1>
-          <p>{state === 'denied' ? `Вы вошли как ${session?.user.email ?? 'неизвестный пользователь'}. Добавьте этот аккаунт в admin_users через SQL Editor.` : 'Запустите файл admin-schema.sql в Supabase SQL Editor, затем обновите страницу.'}</p>
-          <button onClick={signOut}><AdminIcon name="logout" /> Выйти</button>
-        </motion.section>
-      </main>
-    )
-  }
-
   return (
     <main className="admin-shell">
       <header className="admin-header">
         <a className="admin-brand" href={`${window.location.pathname}#/`}><span>A <i>&</i> A</span><div><b>Wedding</b><small>guest list</small></div></a>
-        <div className="admin-account"><span>{session?.user.email}</span><button onClick={signOut} aria-label="Выйти"><AdminIcon name="logout" /></button></div>
+        <div className="admin-account"><span>{adminEmail}</span><button onClick={signOut} aria-label="Выйти"><AdminIcon name="logout" /></button></div>
       </header>
 
       <div className="admin-content">
