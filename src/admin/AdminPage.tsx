@@ -127,7 +127,10 @@ export default function AdminPage() {
     if (!email.trim()) return
     setAuthBusy(true)
     setAuthMessage('')
-    const redirectTo = `${window.location.origin}${window.location.pathname}#/admin`
+    const redirectUrl = new URL(window.location.href)
+    redirectUrl.hash = ''
+    redirectUrl.searchParams.set('admin', '1')
+    const redirectTo = redirectUrl.toString()
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: { emailRedirectTo: redirectTo, shouldCreateUser: true },

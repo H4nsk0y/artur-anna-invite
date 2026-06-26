@@ -444,13 +444,21 @@ function InvitationApp() {
   )
 }
 
+function isAdminRoute() {
+  return window.location.hash.startsWith('#/admin') || new URLSearchParams(window.location.search).has('admin')
+}
+
 export default function App() {
-  const [adminRoute, setAdminRoute] = useState(() => window.location.hash.startsWith('#/admin'))
+  const [adminRoute, setAdminRoute] = useState(isAdminRoute)
 
   useEffect(() => {
-    const handleRoute = () => setAdminRoute(window.location.hash.startsWith('#/admin'))
+    const handleRoute = () => setAdminRoute(isAdminRoute())
     window.addEventListener('hashchange', handleRoute)
-    return () => window.removeEventListener('hashchange', handleRoute)
+    window.addEventListener('popstate', handleRoute)
+    return () => {
+      window.removeEventListener('hashchange', handleRoute)
+      window.removeEventListener('popstate', handleRoute)
+    }
   }, [])
 
   if (adminRoute) {
