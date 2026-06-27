@@ -7,8 +7,54 @@ import { Attendance, submitRsvp } from './services/rsvp'
 const photoUrl = `${import.meta.env.BASE_URL}couple.jpg`
 const introPhotoUrl = `${import.meta.env.BASE_URL}intro-photo.jpg`
 const countdownPhotoUrl = `${import.meta.env.BASE_URL}countdown-photo.jpg`
-const musicUrl = `${import.meta.env.BASE_URL}music.mp3`
+const musicUrls = ['trek_1.mp3', 'trek_2.mp3', 'trek_3.mp3'].map((track) => `${import.meta.env.BASE_URL}${track}`)
+const musicQueueStorageKey = 'wedding-music-queue'
+const lastMusicStorageKey = 'wedding-last-music'
 const AdminPage = lazy(() => import('./admin/AdminPage'))
+
+function fallbackMusicUrl() {
+  return musicUrls[Math.floor(Math.random() * musicUrls.length)] ?? ''
+}
+
+function shuffleMusicUrls(lastPlayed?: string) {
+  const shuffled = [...musicUrls]
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    ;[shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]]
+  }
+
+  if (lastPlayed && shuffled.length > 1 && shuffled[0] === lastPlayed) {
+    const swapIndex = shuffled.findIndex((url) => url !== lastPlayed)
+    if (swapIndex > 0) {
+      ;[shuffled[0], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[0]]
+    }
+  }
+
+  return shuffled
+}
+
+function takeNextMusicUrl() {
+  try {
+    const storedQueue = window.localStorage.getItem(musicQueueStorageKey)
+    const parsedQueue = storedQueue ? JSON.parse(storedQueue) : []
+    let queue = Array.isArray(parsedQueue)
+      ? parsedQueue.filter((url): url is string => typeof url === 'string' && musicUrls.includes(url))
+      : []
+
+    if (queue.length === 0) {
+      queue = shuffleMusicUrls(window.localStorage.getItem(lastMusicStorageKey) ?? undefined)
+    }
+
+    const nextUrl = queue.shift() ?? fallbackMusicUrl()
+    window.localStorage.setItem(musicQueueStorageKey, JSON.stringify(queue))
+    window.localStorage.setItem(lastMusicStorageKey, nextUrl)
+
+    return nextUrl
+  } catch {
+    return fallbackMusicUrl()
+  }
+}
 
 function Icon({ name }: { name: 'sound' | 'muted' | 'map' | 'heart' | 'calendar' }) {
   const paths = {
@@ -372,7 +418,9 @@ function InvitationApp() {
   const [gateVisible, setGateVisible] = useState(true)
   const [musicPlaying, setMusicPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
+  const selectedMusicUrlRef = useRef<string | null>(null)
   const openTimer = useRef<number | null>(null)
+  const musicStartTimer = useRef<number | null>(null)
 
   useSmoothWheelScroll(!gateVisible)
 
@@ -387,20 +435,33 @@ function InvitationApp() {
 
   useEffect(() => () => {
     if (openTimer.current) window.clearTimeout(openTimer.current)
+    if (musicStartTimer.current) window.clearTimeout(musicStartTimer.current)
   }, [])
 
   function startMusic() {
     const audio = audioRef.current
     if (!audio) return
+
+    if (!selectedMusicUrlRef.current) {
+      selectedMusicUrlRef.current = takeNextMusicUrl()
+    }
+
+    if (audio.getAttribute('src') !== selectedMusicUrlRef.current) {
+      audio.setAttribute('src', selectedMusicUrlRef.current)
+      audio.load()
+    }
+
     audio.volume = 0.42
     void audio.play().then(() => setMusicPlaying(true)).catch(() => setMusicPlaying(false))
   }
 
   function openInvitation() {
     if (opening) return
-    startMusic()
     setOpening(true)
-    openTimer.current = window.setTimeout(() => setGateVisible(false), 1750)
+    openTimer.current = window.setTimeout(() => {
+      setGateVisible(false)
+      musicStartTimer.current = window.setTimeout(startMusic, 320)
+    }, 1750)
   }
 
   function toggleMusic() {
@@ -413,11 +474,16 @@ function InvitationApp() {
     }
   }
 
+  function playNextMusicTrack() {
+    selectedMusicUrlRef.current = null
+    startMusic()
+  }
+
   const t = copy[language]
 
   return (
     <>
-      <audio ref={audioRef} src={musicUrl} preload="metadata" loop />
+      <audio ref={audioRef} preload="none" onEnded={playNextMusicTrack} />
       <MainInvitation language={language} />
 
       <div className="floating-controls">
