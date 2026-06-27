@@ -56,6 +56,10 @@ function takeNextMusicUrl() {
   }
 }
 
+function getMusicPendingLabel(language: Language) {
+  return language === 'ru' ? 'Музыка включается' : 'Երաժշտությունը միանում է'
+}
+
 function Icon({ name }: { name: 'sound' | 'muted' | 'map' | 'heart' | 'calendar' }) {
   const paths = {
     sound: <><path d="M11 5 6.8 8.5H3.5v7h3.3L11 19V5Z"/><path d="M15 8.5a5 5 0 0 1 0 7M17.8 5.8a9 9 0 0 1 0 12.4"/></>,
@@ -417,6 +421,7 @@ function InvitationApp() {
   const [opening, setOpening] = useState(false)
   const [gateVisible, setGateVisible] = useState(true)
   const [musicPlaying, setMusicPlaying] = useState(false)
+  const [musicStarting, setMusicStarting] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
   const selectedMusicUrlRef = useRef<string | null>(null)
   const openTimer = useRef<number | null>(null)
@@ -438,9 +443,9 @@ function InvitationApp() {
     if (musicStartTimer.current) window.clearTimeout(musicStartTimer.current)
   }, [])
 
-  function startMusic() {
+  function prepareMusicTrack() {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio) return null
 
     if (!selectedMusicUrlRef.current) {
       selectedMusicUrlRef.current = takeNextMusicUrl()
@@ -451,14 +456,31 @@ function InvitationApp() {
       audio.load()
     }
 
+    return audio
+  }
+
+  function startMusic() {
+    const audio = prepareMusicTrack()
+    if (!audio) return
     audio.volume = 0.42
-    void audio.play().then(() => setMusicPlaying(true)).catch(() => setMusicPlaying(false))
+    setMusicStarting(true)
+    void audio.play()
+      .then(() => {
+        setMusicPlaying(true)
+        setMusicStarting(false)
+      })
+      .catch(() => {
+        setMusicPlaying(false)
+        setMusicStarting(false)
+      })
   }
 
   function openInvitation() {
     if (opening) return
+    prepareMusicTrack()
     setOpening(true)
     openTimer.current = window.setTimeout(() => {
+      setMusicStarting(true)
       setGateVisible(false)
       musicStartTimer.current = window.setTimeout(startMusic, 320)
     }, 1750)
@@ -466,11 +488,12 @@ function InvitationApp() {
 
   function toggleMusic() {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || musicStarting) return
     if (audio.paused) startMusic()
     else {
       audio.pause()
       setMusicPlaying(false)
+      setMusicStarting(false)
     }
   }
 
@@ -480,6 +503,7 @@ function InvitationApp() {
   }
 
   const t = copy[language]
+  const musicActive = musicPlaying || musicStarting
 
   return (
     <>
@@ -489,14 +513,15 @@ function InvitationApp() {
       <div className="floating-controls">
         {!gateVisible && (
           <motion.button
-            className="music-toggle"
+            className={`music-toggle ${musicStarting ? 'music-toggle--starting' : ''}`}
             onClick={toggleMusic}
-            aria-label={musicPlaying ? t.musicOn : t.musicOff}
+            aria-label={musicStarting ? getMusicPendingLabel(language) : musicPlaying ? t.musicOn : t.musicOff}
+            disabled={musicStarting}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <Icon name={musicPlaying ? 'sound' : 'muted'} />
-            {musicPlaying && <i />}
+            <Icon name={musicActive ? 'sound' : 'muted'} />
+            {musicActive && <i />}
           </motion.button>
         )}
         <LanguageToggle language={language} onChange={() => setLanguage(language === 'ru' ? 'hy' : 'ru')} />

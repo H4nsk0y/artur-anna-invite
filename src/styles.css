@@ -201,6 +201,14 @@ input:focus-visible {
   cursor: pointer;
 }
 
+.music-toggle:disabled {
+  cursor: default;
+}
+
+.music-toggle--starting svg {
+  animation: music-starting 1.15s ease-in-out infinite;
+}
+
 .music-toggle svg,
 .date-time svg,
 .location-card > svg,
@@ -224,6 +232,11 @@ input:focus-visible {
 @keyframes sound-wave {
   0% { opacity: .6; transform: scale(.85); }
   75%, 100% { opacity: 0; transform: scale(1.25); }
+}
+
+@keyframes music-starting {
+  0%, 100% { opacity: .58; transform: scale(.94); }
+  50% { opacity: 1; transform: scale(1); }
 }
 
 /* Envelope gate */
