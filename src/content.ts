@@ -11,8 +11,14 @@ export const event = {
   dateDay: '09',
   dateYear: '2026',
   time: '16:00',
-  venue: 'Ресторан «VAHAGNI HALL»',
-  address: 'Араратская область, село Айгаван, ул. Араратян, д. 25',
+  venue: {
+    ru: 'Ресторан «VAHAGNI HALL»',
+    hy: 'Ռեստորան «VAHAGNI HALL»',
+  },
+  address: {
+    ru: 'Араратская область, село Айгаван, ул. Араратян, д. 25',
+    hy: 'Արարարտի մարզ, Այգավան գյուղ, Արարատյան փողոց, շենք 25',
+  },
   mapUrl: 'https://yandex.ru/maps/-/CTUuNM6M',
 }
 

@@ -332,8 +332,8 @@ function MainInvitation({ language, revealed }: { language: Language; revealed: 
           <SectionTitle number="01">{t.locationLabel}</SectionTitle>
           <div className="location-card">
             <Icon name="map" />
-            <h3>{event.venue}</h3>
-            <p>{event.address}</p>
+            <h3>{event.venue[language]}</h3>
+            <p>{event.address[language]}</p>
             <a className="outline-button" href={event.mapUrl} target="_blank" rel="noreferrer">{t.mapButton}</a>
           </div>
         </Reveal>
