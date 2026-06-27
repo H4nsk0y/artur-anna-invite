@@ -591,12 +591,18 @@ input:focus-visible {
   object-fit: cover;
   object-position: 50% 50%;
   filter: contrast(1.04);
-  animation: hero-drift 16s ease-out both;
+  transform: scale(1.09);
+  transform-origin: 50% 48%;
+  will-change: transform;
 }
 
-@keyframes hero-drift {
-  from { transform: scale(1.08); }
-  to { transform: scale(1); }
+.hero--active > img {
+  animation: hero-zoom-out 9.5s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes hero-zoom-out {
+  from { transform: scale(1.09); }
+  to { transform: scale(1.01); }
 }
 
 .hero__shade {
@@ -1285,6 +1291,37 @@ input:focus-visible {
 .countdown-section h2 {
   margin: 0;
   font: italic 400 clamp(39px, 12vw, 64px)/1 var(--serif);
+}
+
+/* Armenian typography balance: display font only for large decorative text. */
+.gate--hy .gate__hint p,
+.invitation--hy .hero__content > div b,
+.invitation--hy .section-copy,
+.invitation--hy .intro p,
+.invitation--hy .date-card > p,
+.invitation--hy .date-display i,
+.invitation--hy .date-time,
+.invitation--hy .location-card p,
+.invitation--hy .outline-button,
+.invitation--hy .timeline__item time,
+.invitation--hy .timeline__item p,
+.invitation--hy .details__list p,
+.invitation--hy .field > span,
+.invitation--hy .field input,
+.invitation--hy .rsvp legend,
+.invitation--hy .radio-card > span,
+.invitation--hy .primary-button,
+.invitation--hy .form-message,
+.invitation--hy .countdown__item span,
+.invitation--hy .countdown-section__content > p {
+  font-family: 'Noto Serif Armenian', 'Manrope', serif;
+  font-style: normal;
+}
+
+.invitation--hy .timeline__item p,
+.invitation--hy .rsvp legend,
+.invitation--hy .radio-card > span {
+  line-height: 1.48;
 }
 
 @media (min-width: 641px) {

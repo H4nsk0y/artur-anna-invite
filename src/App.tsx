@@ -7,7 +7,9 @@ import { Attendance, submitRsvp } from './services/rsvp'
 const photoUrl = `${import.meta.env.BASE_URL}couple.jpg`
 const introPhotoUrl = `${import.meta.env.BASE_URL}intro-photo.jpg`
 const countdownPhotoUrl = `${import.meta.env.BASE_URL}countdown-photo.jpg`
-const musicUrls = ['trek_1.mp3', 'trek_2.mp3', 'trek_3.mp3'].map((track) => `${import.meta.env.BASE_URL}${track}`)
+const musicUrls = ['trek_1.mp3', 'trek_2.mp3', 'trek_3.mp3', 'trek_4.mp3'].map(
+  (track) => `${import.meta.env.BASE_URL}${track}`,
+)
 const musicQueueStorageKey = 'wedding-music-queue'
 const lastMusicStorageKey = 'wedding-last-music'
 const AdminPage = lazy(() => import('./admin/AdminPage'))
@@ -283,14 +285,14 @@ function RsvpForm({ language }: { language: Language }) {
   )
 }
 
-function MainInvitation({ language }: { language: Language }) {
+function MainInvitation({ language, revealed }: { language: Language; revealed: boolean }) {
   const t = copy[language]
   const names = event.partners[language]
   const reduced = useReducedMotion()
 
   return (
     <main className={`invitation invitation--${language}`}>
-      <section className="hero">
+      <section className={`hero ${revealed ? 'hero--active' : ''}`}>
         <img src={photoUrl} alt="Пара танцует" />
         <div className="hero__shade" />
         <div className="hero__content">
@@ -508,7 +510,7 @@ function InvitationApp() {
   return (
     <>
       <audio ref={audioRef} preload="none" onEnded={playNextMusicTrack} />
-      <MainInvitation language={language} />
+      <MainInvitation language={language} revealed={!gateVisible} />
 
       <div className="floating-controls">
         {!gateVisible && (
